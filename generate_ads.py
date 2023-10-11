@@ -133,48 +133,47 @@ class AIImage:
 
 
     #ADDS DESIGNS AND TEXT TO THE AI GENERATED IMAGE    
-    def design(self,img):
-        img=img.copy()
-        colors=self.colors.copy()
-        Idraw = PIL.ImageDraw.Draw(img, "RGBA")#Create drawable surface
-        #Pick a random design format based on given weights
-        choice=random.choices(list(self.DESIGN_OPTIONS.keys()),weights=self.DESIGN_OPTIONS.values(),k=1)[0]
+    def design(self, img):
+        img = img.copy()
+        colors = self.colors.copy()
+        Idraw = PIL.ImageDraw.Draw(img, "RGBA")  # Create drawable surface
+        # Pick a random design format based on given weights
+        choice = random.choices(list(self.DESIGN_OPTIONS.keys()), weights=self.DESIGN_OPTIONS.values(), k=1)[0]
 
-        colors,color=get_color(colors)
-        #1. APPLY DESIGN
-        if check_chroma_possible(img,self.size[0],self.size[1]):
-            Idraw,img,box=position(Idraw,img,self.size[0],self.size[1])
+        colors, color = get_color(colors)
+        # 1. APPLY DESIGN
+        if check_chroma_possible(img, self.size[0], self.size[1]):
+            Idraw, img, box = position(Idraw, img, self.size[0], self.size[1])
         else:
-            match choice:
-                case "fill":
-                    img=color_fill(Idraw,img,color,self.size[0],self.size[1])
-                    Idraw = PIL.ImageDraw.Draw(img, "RGBA")#Reinitialize Idraw
-                    if random.random()>0.8:#Randomly add a blur box
-                        Idraw,img,box=blur_box(Idraw,img,int(self.size[0]*0.7),int(self.size[1]*0.7),self.size[0],self.size[1])
-                    else:
-                        box=(self.size[0]*0.1,self.size[1]*0.1,self.size[0]-self.size[0]*0.1,self.size[1]-self.size[1]*0.1)
-                case "blur":
-                    Idraw,img,box=blur_box(Idraw,img,int(self.size[0]*0.7),int(self.size[1]*0.7),self.size[0],self.size[1])
-                case "circle":
-                    Idraw,img,box=circle(Idraw,img,color,self.size[0],self.size[1])
-                    if random.random()>0.8:#Randomly center text instead
-                        box=(self.size[0]*0.1,self.size[1]*0.1,self.size[0]-self.size[0]*0.1,self.size[1]-self.size[1]*0.1)
-                case "none":
-                    mult=random.uniform(0.2,0.5)#Random sized text box in center
-                    box=(self.size[0]*mult,self.size[1]*mult,self.size[0]-self.size[0]*mult,self.size[1]-self.size[1]*mult)
-        Idraw = PIL.ImageDraw.Draw(img, "RGBA")#Reinitialize Idraw
+            if choice == "fill":
+                img = color_fill(Idraw, img, color, self.size[0], self.size[1])
+                Idraw = PIL.ImageDraw.Draw(img, "RGBA")  # Reinitialize Idraw
+                if random.random() > 0.8:  # Randomly add a blur box
+                    Idraw, img, box = blur_box(Idraw, img, int(self.size[0] * 0.7), int(self.size[1] * 0.7), self.size[0], self.size[1])
+                else:
+                    box = (self.size[0] * 0.1, self.size[1] * 0.1, self.size[0] - self.size[0] * 0.1, self.size[1] - self.size[1] * 0.1)
+            elif choice == "blur":
+                Idraw, img, box = blur_box(Idraw, img, int(self.size[0] * 0.7), int(self.size[1] * 0.7), self.size[0], self.size[1])
+            elif choice == "circle":
+                Idraw, img, box = circle(Idraw, img, color, self.size[0], self.size[1])
+                if random.random() > 0.8:  # Randomly center text instead
+                    box = (self.size[0] * 0.1, self.size[1] * 0.1, self.size[0] - self.size[0] * 0.1, self.size[1] - self.size[1] * 0.1)
+            elif choice == "none":
+                mult = random.uniform(0.2, 0.5)  # Random sized text box in the center
+                box = (self.size[0] * mult, self.size[1] * mult, self.size[0] - self.size[0] * mult, self.size[1] - self.size[1] * mult)
+        Idraw = PIL.ImageDraw.Draw(img, "RGBA")  # Reinitialize Idraw
 
-        #2. ADD THE LOGO
-        Idraw,img=place_logo(Idraw,img,self.logo,self.size[0],self.size[1],box)
+        # 2. ADD THE LOGO
+        Idraw, img = place_logo(Idraw, img, self.logo, self.size[0], self.size[1], box)
 
-        colors,color=get_color(colors)
-        #3. ADD THE TEXT
-        Idraw=add_text2(Idraw,img,self.generate_text(),self.generate_subText(),box,color,self.font)
+        colors, color = get_color(colors)
+        # 3. ADD THE TEXT
+        Idraw = add_text2(Idraw, img, self.generate_text(), self.generate_subText(), box, color, self.font)
 
         self.lock.acquire()
         self.designs.append(img)
         self.lock.release()
-        return#Return the designed image 
+        return  # Return the designed image 
         
 
 
